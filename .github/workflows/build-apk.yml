@@ -19,22 +19,37 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Generate Missing Gradle Wrapper
+    - name: Find and Build Android Project
       run: |
+        echo "Searching for the directory containing settings.gradle..."
+        PROJECT_ROOT=$(find . -name "settings.gradle" -not -path "*/.*" | head -n 1 | xargs dirname)
+        
+        if [ -z "$PROJECT_ROOT" ]; then
+          echo "ERROR: settings.gradle could not be found anywhere in the uploaded files."
+          exit 1
+        fi
+        
+        echo "Found project root folder at: $PROJECT_ROOT"
+        cd "$PROJECT_ROOT"
+        
         if [ ! -f gradlew ]; then
-          echo "gradlew not found. Generating fresh build wrapper..."
+          echo "Generating missing build wrapper..."
           gradle wrapper
         fi
-
-    - name: Grant Execute Permission for Gradle
-      run: chmod +x gradlew
-
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug
+        
+        echo "Granting execution permissions..."
+        chmod +x gradlew
+        
+        echo "Compiling Android App..."
+        ./gradlew assembleDebug
+        
+        # Save the location of the compiled APK for the next step
+        APK_PATH=$(find . -name "*.apk" -path "*/outputs/apk/*" | head -n 1)
+        echo "APK_LOCATION=$PROJECT_ROOT/$APK_PATH" >> $GITHUB_ENV
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: ${{ env.APK_LOCATION }}
         
