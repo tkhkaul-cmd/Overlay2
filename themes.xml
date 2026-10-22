@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.GameOverlay" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#06b6d4</item>
+    </style>
+</resources>

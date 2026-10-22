@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Game Overlay Macro</string>
+    <string name="accessibility_description">Used exclusively to simulate coordinate-based touch taps and macro gestures in games when triggered from the floating overlay button.</string>
+</resources>

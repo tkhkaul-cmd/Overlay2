@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#e6090d16"
+    android:padding="6dp"
+    android:gravity="center_vertical">
+
+    <!-- Drag Handle -->
+    <TextView
+        android:id="@+id/dragHandle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⠿"
+        android:textColor="#06b6d4"
+        android:textSize="22sp"
+        android:paddingHorizontal="6dp" />
+
+    <!-- Programmable Trigger Button 1 -->
+    <Button
+        android:id="@+id/btnTrigger1"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="▶ Run Macro"
+        android:textSize="11sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#06b6d4" />
+
+    <!-- Stop / Close Button -->
+    <Button
+        android:id="@+id/btnCloseOverlay"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:text="✕"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#ef4444"
+        android:layout_marginStart="4dp" />
+
+</LinearLayout>
