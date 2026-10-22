@@ -56,6 +56,12 @@ jobs:
         }
         EOF
 
+        echo "Generating root project module mapping file..."
+        cat << 'EOF' > settings.gradle.kts
+        rootProject.name = "GameOverlayMacro"
+        include(":app")
+        EOF
+
         echo "Regenerating fresh local project runner wrapper..."
         gradle wrapper
 
@@ -63,7 +69,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew :app:assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
