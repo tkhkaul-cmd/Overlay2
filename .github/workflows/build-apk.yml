@@ -2,9 +2,6 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
-      - master
   workflow_dispatch:
 
 jobs:
@@ -33,4 +30,4 @@ jobs:
       with:
         name: app-debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-    
+        
