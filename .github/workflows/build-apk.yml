@@ -48,15 +48,28 @@ jobs:
           mv build.gradle.kts app/build.gradle.kts
         fi
 
-        echo "Creating base root matching build file..."
+        echo "Creating comprehensive root build configuration file..."
         cat << 'EOF' > build.gradle.kts
-        plugins {
-            id("com.android.application") version "8.5.0" apply false
-            id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath("com.android.tools.build:gradle:8.5.0")
+                classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+            }
+        }
+
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
         }
         EOF
 
-        echo "Generating root project module mapping with repository discovery..."
+        echo "Generating root project module mapping file..."
         cat << 'EOF' > settings.gradle.kts
         pluginManagement {
             repositories {
