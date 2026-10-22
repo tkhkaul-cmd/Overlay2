@@ -21,14 +21,20 @@ jobs:
 
     - name: Find and Build Android Project
       run: |
-        echo "Searching for the directory containing settings.gradle..."
-        PROJECT_ROOT=$(find . -name "settings.gradle" -not -path "*/.*" | head -n 1 | xargs dirname)
+        echo "=== Current Repository Structure ==="
+        find . -maxdepth 3 -not -path '*/.*'
+        echo "===================================="
+
+        echo "Searching for directory containing configuration files..."
+        # Search for either settings.gradle or settings.gradle.kts
+        CONFIG_FILE=$(find . -name "settings.gradle" -o -name "settings.gradle.kts" -not -path "*/.*" | head -n 1)
         
-        if [ -z "$PROJECT_ROOT" ]; then
-          echo "ERROR: settings.gradle could not be found anywhere in the uploaded files."
+        if [ -z "$CONFIG_FILE" ]; then
+          echo "ERROR: Neither settings.gradle nor settings.gradle.kts could be found."
           exit 1
         fi
         
+        PROJECT_ROOT=$(dirname "$CONFIG_FILE")
         echo "Found project root folder at: $PROJECT_ROOT"
         cd "$PROJECT_ROOT"
         
@@ -43,9 +49,9 @@ jobs:
         echo "Compiling Android App..."
         ./gradlew assembleDebug
         
-        # Save the location of the compiled APK for the next step
-        APK_PATH=$(find . -name "*.apk" -path "*/outputs/apk/*" | head -n 1)
-        echo "APK_LOCATION=$PROJECT_ROOT/$APK_PATH" >> $GITHUB_ENV
+        # Locate the compiled APK file safely
+        APK_RELATIVE_PATH=$(find . -name "*.apk" -path "*/outputs/apk/*" | head -n 1)
+        echo "APK_LOCATION=$PROJECT_ROOT/$APK_RELATIVE_PATH" >> $GITHUB_ENV
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
