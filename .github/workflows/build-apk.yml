@@ -19,43 +19,56 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Find and Build Android Project
+    - name: Restructure Mobile Upload to Standard Android Layout
       run: |
-        echo "=== Current Repository Structure ==="
-        find . -maxdepth 3 -not -path '*/.*'
-        echo "===================================="
+        echo "Cleaning up duplicate gradle copies..."
+        rm -f "build.gradle (1).kts"
 
-        echo "Searching for directory containing configuration files..."
-        # Search for either settings.gradle or settings.gradle.kts
-        CONFIG_FILE=$(find . -name "settings.gradle" -o -name "settings.gradle.kts" -not -path "*/.*" | head -n 1)
-        
-        if [ -z "$CONFIG_FILE" ]; then
-          echo "ERROR: Neither settings.gradle nor settings.gradle.kts could be found."
-          exit 1
+        echo "Creating standard Android directory structures..."
+        mkdir -p app/src/main/java/com/example/overlay
+        mkdir -p app/src/main/res/layout
+        mkdir -p app/src/main/res/values
+        mkdir -p app/src/main/res/xml
+
+        echo "Moving code files into correct package pathways..."
+        [ -f MainActivity.kt ] && mv MainActivity.kt app/src/main/java/com/example/overlay/
+        [ -f FloatingOverlayService.kt ] && mv FloatingOverlayService.kt app/src/main/java/com/example/overlay/
+        [ -f MacroAccessibilityService.kt ] && mv MacroAccessibilityService.kt app/src/main/java/com/example/overlay/
+
+        echo "Moving resource and layout files..."
+        [ -f AndroidManifest.xml ] && mv AndroidManifest.xml app/src/main/
+        [ -f activity_main.xml ] && mv activity_main.xml app/src/main/res/layout/
+        [ -f layout_floating_overlay.xml ] && mv layout_floating_overlay.xml app/src/main/res/layout/
+        [ -f strings.xml ] && mv strings.xml app/src/main/res/values/
+        [ -f themes.xml ] && mv themes.xml app/src/main/res/values/
+        [ -f accessibility_service_config.xml ] && mv accessibility_service_config.xml app/src/main/res/xml/
+
+        echo "Organizing root configuration blueprints..."
+        if [ -f build.gradle.kts ]; then
+          mv build.gradle.kts app/build.gradle.kts
         fi
-        
-        PROJECT_ROOT=$(dirname "$CONFIG_FILE")
-        echo "Found project root folder at: $PROJECT_ROOT"
-        cd "$PROJECT_ROOT"
-        
-        if [ ! -f gradlew ]; then
-          echo "Generating missing build wrapper..."
-          gradle wrapper
-        fi
-        
-        echo "Granting execution permissions..."
-        chmod +x gradlew
-        
-        echo "Compiling Android App..."
-        ./gradlew assembleDebug
-        
-        # Locate the compiled APK file safely
-        APK_RELATIVE_PATH=$(find . -name "*.apk" -path "*/outputs/apk/*" | head -n 1)
-        echo "APK_LOCATION=$PROJECT_ROOT/$APK_RELATIVE_PATH" >> $GITHUB_ENV
+
+        echo "Creating base root fallback build file..."
+        cat << 'EOF' > build.gradle.kts
+        // Root build file
+        plugins {
+            id("com.android.application") version "8.2.0" apply false
+            id("org.jetbrains.kotlin.android") version "1.9.0" apply false
+        }
+        EOF
+
+        echo "Regenerating fresh local project runner wrapper..."
+        gradle wrapper
+
+    - name: Grant Execute Permission for Gradle
+      run: chmod +x gradlew
+
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-debug-apk
-        path: ${{ env.APK_LOCATION }}
+        path: app/build/outputs/apk/debug/app-debug.apk
         
