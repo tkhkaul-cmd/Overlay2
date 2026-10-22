@@ -48,11 +48,10 @@ jobs:
           mv build.gradle.kts app/build.gradle.kts
         fi
 
-        echo "Creating base root fallback build file..."
+        echo "Creating base root matching build file..."
         cat << 'EOF' > build.gradle.kts
-        // Root build file
         plugins {
-            id("com.android.application") version "8.2.0" apply false
+            id("com.android.application") version "8.5.0" apply false
             id("org.jetbrains.kotlin.android") version "1.9.0" apply false
         }
         EOF
